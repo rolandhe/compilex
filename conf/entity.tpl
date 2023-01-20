@@ -1,8 +1,10 @@
 package {{.Package}}
 
-import "github.com/roland/daog"
-{{if .HasTime}}import dbtime "github.com/roland/daog/time"{{end}}
-{{if .HasDecimal}}import "github.com/shopspring/decimal"{{end}}
+import (
+    "github.com/roland/daog"
+    {{if .HasTime}}dbtime "github.com/roland/daog/time"{{end}}
+    {{if .HasDecimal}}"github.com/shopspring/decimal"{{end}}
+)
 
 var {{.GoTable}}Fields = struct {
    {{range .Columns}}{{.GoName}} string
