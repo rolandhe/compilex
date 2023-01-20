@@ -1,5 +1,5 @@
 # compilex
-配合daog组件的工具，可以把create table语句编译成daog需要的go代码
+配合[daog](https://github.com/rolandhe/daog)组件的工具，可以把create table语句编译成daog需要的go代码
 
 # 原理
 基于mysql sql语句解析器解析出create table语句，遍历出表名、字段名、字段类型，字段是否为自增长，然后生成对应的go代码文件。
