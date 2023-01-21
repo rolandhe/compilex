@@ -3,8 +3,8 @@ package conf
 var MainTpl = `package {{.Package}}
 
 import (
-    "github.com/roland/daog"
-    {{if .HasTime}}dbtime "github.com/roland/daog/time"{{end}}
+    "github.com/rolandhe/daog"
+    {{if .HasTime}}dbtime "github.com/rolandhe/daog/time"{{end}}
     {{if .HasDecimal}}"github.com/shopspring/decimal"{{end}}
 )
 
