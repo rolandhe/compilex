@@ -17,9 +17,6 @@ var {{.GoTable}}Fields = struct {
 }
 
 var  {{.GoTable}}Meta = &daog.TableMeta[{{.GoTable}}]{
-    InstanceFunc: func() *{{.GoTable}}{
-        return &{{.GoTable}}{}
-    },
     Table: "{{.TableName}}",
     Columns: []string {
         {{range .Columns}}"{{.DbName}}",
