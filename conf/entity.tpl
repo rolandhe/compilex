@@ -33,6 +33,11 @@ var  {{.GoTable}}Meta = &daog.TableMeta[{{.GoTable}}]{
     },
 }
 
+var {{.GoTable}}Dao daog.QuickDao[{{.GoTable}}] = &struct {
+	daog.QuickDao[{{.GoTable}}]
+}{
+	daog.NewBaseQuickDao({{.GoTable}}Meta),
+}
 
 type {{.GoTable}} struct {
     {{range .Columns}}{{.GoName}} {{.GoType}}
