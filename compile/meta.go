@@ -126,13 +126,25 @@ func toGoTypeString(tp byte, flag uint) string {
 	case mysql.TypeString:
 		return "string"
 	case mysql.TypeTinyBlob:
-		return "[]byte"
+		if mysql.HasBinaryFlag(flag) {
+			return "[]byte"
+		}
+		return "string"
 	case mysql.TypeMediumBlob:
-		return "[]byte"
+		if mysql.HasBinaryFlag(flag) {
+			return "[]byte"
+		}
+		return "string"
 	case mysql.TypeLongBlob:
-		return "[]byte"
+		if mysql.HasBinaryFlag(flag) {
+			return "[]byte"
+		}
+		return "string"
 	case mysql.TypeBlob:
-		return "[]byte"
+		if mysql.HasBinaryFlag(flag) {
+			return "[]byte"
+		}
+		return "string"
 
 	case mysql.TypeNewDecimal:
 		return "decimal.Decimal"
