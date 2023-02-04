@@ -4,7 +4,7 @@ var MainTpl = `package {{.Package}}
 
 import (
     "github.com/rolandhe/daog"
-    {{if .HasTime}}dbtime "github.com/rolandhe/daog/time"{{end}}
+    {{if .HasType}}"github.com/rolandhe/daog/ttypes"{{end}}
     {{if .HasDecimal}}"github.com/shopspring/decimal"{{end}}
 )
 
