@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/roland/compilex/compile"
 	"os"
+	"os/exec"
 	"path/filepath"
 )
 
@@ -18,6 +19,7 @@ func init() {
 	flag.StringVar(&oPath, "o", "./", "output directory, default is current directory")
 }
 func main() {
+
 	flag.Parse()
 	if inputFile == "" {
 		fmt.Println("Please input create tables file")
@@ -43,4 +45,16 @@ func main() {
 	sql := string(data)
 
 	compile.BuildTableMata(sql, pkgName, oPath)
+
+	targetPath := oPath
+	if oPath == "./" {
+		str, _ := os.Getwd()
+		targetPath = str + "/" + pkgName
+	}
+
+	cmd := exec.Command("go", "fmt", targetPath)
+	err = cmd.Run()
+	if err != nil {
+		fmt.Println(err)
+	}
 }
