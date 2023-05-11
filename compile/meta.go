@@ -1,11 +1,21 @@
 package compile
 
 import (
+	"fmt"
 	"github.com/pingcap/tidb/parser/ast"
 	"github.com/pingcap/tidb/parser/mysql"
 	"log"
 	"strings"
 )
+
+var keywordsMap = map[string]int{}
+
+func init() {
+	keywordsMap["case"] = 1
+	keywordsMap["key"] = 1
+	keywordsMap["table"] = 1
+	keywordsMap["column"] = 1
+}
 
 type Column struct {
 	GoName string
@@ -42,11 +52,19 @@ func (meta *Meta) Enter(in ast.Node) (ast.Node, bool) {
 		}
 	case *ast.TableName:
 		name := in.(*ast.TableName)
-		meta.TableName = name.Name.O
-		meta.GoTable = toCamel(meta.TableName)
+		meta.TableName = escapeKeyName(name.Name.O)
+		meta.GoTable = toCamel(name.Name.O)
 	}
 
 	return in, false
+}
+
+func escapeKeyName(name string) string {
+	lcName := strings.ToLower(name)
+	if keywordsMap[lcName] == 0 {
+		return name
+	}
+	return fmt.Sprintf("`%s`", name)
 }
 
 func (meta *Meta) Leave(in ast.Node) (ast.Node, bool) {
@@ -64,19 +82,19 @@ func isAuto(def *ast.ColumnDef) bool {
 
 func toColumn(def *ast.ColumnDef) *Column {
 	c := &Column{
-		DbName: def.Name.Name.O,
+		DbName: escapeKeyName(def.Name.Name.O),
 		GoName: toCamel(def.Name.Name.O),
 	}
 
 	isNull := true
-	for _,op := range def.Options{
-		if op.Tp == ast.ColumnOptionNotNull{
+	for _, op := range def.Options {
+		if op.Tp == ast.ColumnOptionNotNull {
 			isNull = false
 			break
 		}
 	}
 
-	s := toGoTypeString(def.Tp.GetType(), def.Tp.GetFlag(),isNull)
+	s := toGoTypeString(def.Tp.GetType(), def.Tp.GetFlag(), isNull)
 	if s == "" {
 		log.Printf("%s不能出类型\n", c.DbName)
 		return nil
@@ -85,7 +103,7 @@ func toColumn(def *ast.ColumnDef) *Column {
 	return c
 }
 
-func toGoTypeString(tp byte, flag uint,isNull bool) string {
+func toGoTypeString(tp byte, flag uint, isNull bool) string {
 	switch tp {
 	case mysql.TypeTiny:
 		if mysql.HasUnsignedFlag(flag) {
@@ -107,22 +125,22 @@ func toGoTypeString(tp byte, flag uint,isNull bool) string {
 	case mysql.TypeDouble:
 		return "float64"
 	case mysql.TypeTimestamp:
-		if isNull{
+		if isNull {
 			return "ttypes.NilableDatetime"
 		}
 		return "ttypes.NormalDatetime"
 	case mysql.TypeDate:
-		if isNull{
+		if isNull {
 			return "ttypes.NilableDate"
 		}
 		return "ttypes.NormalDate"
 	case mysql.TypeDatetime:
-		if isNull{
+		if isNull {
 			return "ttypes.NilableDatetime"
 		}
 		return "ttypes.NormalDatetime"
 	case mysql.TypeNewDate:
-		if isNull{
+		if isNull {
 			return "ttypes.NilableDate"
 		}
 		return "ttypes.NormalDate"
@@ -137,24 +155,24 @@ func toGoTypeString(tp byte, flag uint,isNull bool) string {
 		}
 		return "int64"
 	case mysql.TypeVarchar:
-		if isNull{
+		if isNull {
 			return "ttypes.NilableString"
 		}
 		return "string"
 	case mysql.TypeJSON:
-		if isNull{
+		if isNull {
 			return "ttypes.NilableString"
 		}
 		return "string"
 	case mysql.TypeBit:
 		return "bool"
 	case mysql.TypeVarString:
-		if isNull{
+		if isNull {
 			return "ttypes.NilableString"
 		}
 		return "string"
 	case mysql.TypeString:
-		if isNull{
+		if isNull {
 			return "ttypes.NilableString"
 		}
 		return "string"
@@ -162,7 +180,7 @@ func toGoTypeString(tp byte, flag uint,isNull bool) string {
 		if mysql.HasBinaryFlag(flag) {
 			return "[]byte"
 		}
-		if isNull{
+		if isNull {
 			return "ttypes.NilableString"
 		}
 		return "string"
@@ -170,7 +188,7 @@ func toGoTypeString(tp byte, flag uint,isNull bool) string {
 		if mysql.HasBinaryFlag(flag) {
 			return "[]byte"
 		}
-		if isNull{
+		if isNull {
 			return "ttypes.NilableString"
 		}
 		return "string"
@@ -178,7 +196,7 @@ func toGoTypeString(tp byte, flag uint,isNull bool) string {
 		if mysql.HasBinaryFlag(flag) {
 			return "[]byte"
 		}
-		if isNull{
+		if isNull {
 			return "ttypes.NilableString"
 		}
 		return "string"
@@ -186,7 +204,7 @@ func toGoTypeString(tp byte, flag uint,isNull bool) string {
 		if mysql.HasBinaryFlag(flag) {
 			return "[]byte"
 		}
-		if isNull{
+		if isNull {
 			return "ttypes.NilableString"
 		}
 		return "string"
